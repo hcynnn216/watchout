@@ -7,7 +7,7 @@ var gameOptions = {
   height: 450,
   width: 700,
   nEnemies: 30,
-  maxSpeed: 4,
+  maxSpeed: 2,
   minSpeed: 0
 };
 
@@ -26,6 +26,16 @@ var axes = {
 var gameBoard = d3.select('body').append('svg:svg')
                   .attr('width', gameOptions.width)
                   .attr('height', gameOptions.height);
+
+// Draw a border around the gameBoard
+var gameBoardBorder = gameBoard.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("height", gameOptions.height)
+            .attr("width", gameOptions.width)
+            .style("stroke", 'black')
+            .style("fill", "none")
+            .style("stroke-width", 10);
 
 
 // Functions to set and update the scoreboards
@@ -73,9 +83,9 @@ var createEnemies = function() {
 
   var getDY = function(id) {
     if (id % 2 === 0) {
-      Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed;
+      return Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed;
     } else {
-      -(Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed);
+      return -(Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed);
     }
   };
 
@@ -85,8 +95,8 @@ var createEnemies = function() {
 
     return {
       id: i, 
-      x: axes.x(Math.random() * 100),
-      y: axes.y(Math.random() * 100),
+      x: axes.x(Math.random() * (60 - 40) + 40),
+      y: axes.y(Math.random() * (60 - 40) + 40),
       dx: newDX,
       dy: newDY
     };
@@ -120,6 +130,7 @@ var render = function(enemies) {
 
   // UPDATE
   enemiesOnBoard
+    //.transition()
     .attr('x', function(enemy) { return enemy.x; })
     .attr('y', function(enemy) { return enemy.y; });
 
@@ -131,17 +142,46 @@ var render = function(enemies) {
 var updateEnemies = function(enemies) {
   console.log('updating...');
   _.each(enemies, function(e) {
-    e.x = e.x + e.dx;
-    e.y = e.y + e.dy;
+    // check if next x value would hit the boundaries of the board
+    // if so, reverse the x value so that the ball will travel
+    // in the opposite direction
+    var nextX = e.x + e.dx;
+    var nextY = e.y + e.dy;
+
+    if (nextX - 10 <= 0) {
+      e.dx = -e.dx;
+      e.x = nextX;
+      //e.x = 10;
+    } else if (nextX + 25 >= gameOptions.width) {
+      e.dx = -e.dx;
+      e.x = nextX;
+      //e.x = gameOptions.width - 10;
+    } else {
+      e.x = nextX;
+    }
+
+    if (nextY - 10 <= 0) { 
+      e.dy = -e.dy;
+      e.y = nextY;
+      //e.y = 10;
+    } else if (nextY + 25 >= gameOptions.height) {
+      e.dy = -e.dy;
+      e.y = nextY;
+      //e.y = gameOptions.height;
+    } else {
+      e.y = nextY;
+    }
+
+    // e.x = Math.max(0, Math.min(axes.x(100)-20, e.x + e.dx));
+    // e.y = Math.max(0, Math.min(axes.y(100)-20, e.y + e.dy));
   });
 };
 
 render(enemies);
-
 setInterval(function() {
   updateEnemies(enemies);
   render(enemies);
-}, 100);
+}, 10);
 
 
 
