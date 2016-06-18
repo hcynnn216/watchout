@@ -86,7 +86,7 @@ class Player {
 
     var drag = d3.behavior.drag()
       .on('drag', dragmove);
-    
+
     // ENTER
     players.enter()
       .append('svg:circle')
