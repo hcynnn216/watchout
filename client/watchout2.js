@@ -57,15 +57,56 @@ var updateBestScore = function() {
 --------------------------------------------------------------------------------
 */
 
-var Player = function() {
-  this.startingX = 50;
-  this.startingY = 50;
-};
+// var Player = function() {
+//   this.startingX = 50;
+//   this.startingY = 50;
+// };
 
-// initialize the player and players array
-var players = [];
-players.push(new Player());
+// // initialize the player and players array
+// var players = [];
+// players.push(new Player());
+// Define the player class 
 
+class Player {
+  constructor() {
+    this.x = 50;
+    this.y = 50;
+  }
+
+  playerRender(gameBoard) {
+    console.log('rendering player...'); 
+    var players = gameBoard.selectAll('circle.player').data(playersData);
+    var radius = 10;
+    
+    var dragmove = function(d) {
+      d3.select(this)
+          .attr('cx', d.x = Math.max(radius, Math.min(gameOptions.width - radius, d3.event.x)))
+          .attr('cy', d.y = Math.max(radius, Math.min(gameOptions.height - radius, d3.event.y)));
+    };
+
+    var drag = d3.behavior.drag()
+      .on('drag', dragmove);
+    
+    // ENTER
+    players.enter()
+      .append('svg:circle')
+        .attr('class', 'player')
+        .attr('cx', function(p) { return axes.x(p.x); })
+        .attr('cy', function(p) { return axes.y(p.y); })
+        .attr('r', 10)
+        .attr('fill', 'red')
+        .call(drag);
+
+    // EXIT
+    players.exit()
+      .remove();
+  }
+}
+
+var playersData = [];
+var playerOne = new Player();
+playersData.push(playerOne);
+playerOne.playerRender(gameBoard);
 
 /*------------------------------------------------------------------------------
                 Enemy 
