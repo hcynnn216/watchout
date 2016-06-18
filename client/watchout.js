@@ -1,3 +1,8 @@
+/*------------------------------------------------------------------------------
+                GAME SETUP 
+--------------------------------------------------------------------------------
+*/
+
 // Initializes game board dimensions and other game options
 var gameOptions = {
   height: 450,
@@ -36,6 +41,12 @@ var updateBestScore = function() {
   d3.select('.highscore').text('High Score: ' + gameStats.bestScore.toString());  
 };
 
+/*------------------------------------------------------------------------------
+                PLAYER 
+--------------------------------------------------------------------------------
+*/
+
+// Define the player class 
 class Player {
   constructor() {
     this.x = 50;
@@ -45,24 +56,48 @@ class Player {
   playerRender(gameBoard) {
     console.log('rendering player...'); 
     var players = gameBoard.selectAll('circle.player').data(playersData);
+    
+    var dragmove = function(d) {
+      console.log('dragging');
+      d3.select(this)
+          .attr('cx', d.x = d3.event.x)
+          .attr('cy', d.y = d3.event.y);
+    };
 
+    var drag = d3.behavior.drag()
+      .on('drag', dragmove);
+    
+    // ENTER
     players.enter()
       .append('svg:circle')
         .attr('class', 'player')
         .attr('cx', function(p) { return axes.x(p.x); })
         .attr('cy', function(p) { return axes.y(p.y); })
         .attr('r', 10)
-        .attr('fill', 'red');
+        .attr('fill', 'red')
+        .call(drag);
 
+    // EXIT
     players.exit()
       .remove();
   }
 }
+
+// Establish drag function and events for player
 var playersData = [];
 var playerOne = new Player();
 playersData.push(playerOne);
 playerOne.playerRender(gameBoard);
 
+
+
+
+
+
+/*------------------------------------------------------------------------------
+                Enemy 
+--------------------------------------------------------------------------------
+*/
 // Create the enemies data array and set random locations 
 // information for each enemy
 var createEnemies = function() {
@@ -78,12 +113,18 @@ var createEnemies = function() {
 
 var enemyData = createEnemies();
 
+
+/*------------------------------------------------------------------------------
+                Main Game Loop 
+--------------------------------------------------------------------------------
+*/
+
 // Render the game board
 var render = function(enemyData) {
   
   // DATA JOIN
   var enemies = gameBoard.selectAll('image.enemy')
-                  .data(enemyData);
+                  .data(enemyData, function(d) { return d.id; });
 
   // ENTER
   enemies.enter()
