@@ -6,7 +6,9 @@
 var gameOptions = {
   height: 450,
   width: 700,
-  nEnemies: 30
+  nEnemies: 30,
+  maxSpeed: 4,
+  minSpeed: 0
 };
 
 var gameStats = {
@@ -61,11 +63,32 @@ players.push(new Player());
 */
 
 var createEnemies = function() {
+  var getDX = function(id) {
+    if (id < gameOptions.nEnemies * .50) {
+      return Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed;
+    } else {
+      return -(Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed);
+    }
+  };
+
+  var getDY = function(id) {
+    if (id % 2 === 0) {
+      Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed;
+    } else {
+      -(Math.random() * (gameOptions.maxSpeed - gameOptions.minSpeed) + gameOptions.minSpeed);
+    }
+  };
+
   return _.range(0, gameOptions.nEnemies).map(function(i) {
+    var newDX = getDX(i);
+    var newDY = getDY(i);
+
     return {
       id: i, 
       x: axes.x(Math.random() * 100),
-      y: axes.y(Math.random() * 100)
+      y: axes.y(Math.random() * 100),
+      dx: newDX,
+      dy: newDY
     };
   });
 };
@@ -105,9 +128,20 @@ var render = function(enemies) {
     .remove();
 };
 
+var updateEnemies = function(enemies) {
+  console.log('updating...');
+  _.each(enemies, function(e) {
+    e.x = e.x + e.dx;
+    e.y = e.y + e.dy;
+  });
+};
+
 render(enemies);
 
-
+setInterval(function() {
+  updateEnemies(enemies);
+  render(enemies);
+}, 100);
 
 
 
