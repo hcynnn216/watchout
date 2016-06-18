@@ -70,7 +70,7 @@ var updateBestScore = function() {
 class Player {
   constructor() {
     this.x = 50;
-    this.y = 50;
+    this.y = 80;
   }
 
   playerRender(gameBoard) {
@@ -106,7 +106,6 @@ class Player {
 var playersData = [];
 var playerOne = new Player();
 playersData.push(playerOne);
-playerOne.playerRender(gameBoard);
 
 /*------------------------------------------------------------------------------
                 Enemy 
@@ -146,6 +145,42 @@ var createEnemies = function() {
 
 // initialize the enemies and the enemies array
 var enemies = createEnemies();
+
+// Collision Detection
+// Check for collisions with the player object
+var checkCollision = function() {
+  var enemies = d3.selectAll('.enemy');
+  var player = d3.selectAll('.player');
+            
+  var enemiesArray = enemies[0].map(function(e) {
+    var enemyX = e.x.animVal.value;
+    var enemyY = e.y.animVal.value;
+    return { x: enemyX, y: enemyY };
+  });
+
+  _.each(enemiesArray, function(enemy) {
+    var radiusSum = 20; 
+    var cx = gameBoard.selectAll('circle.player').attr('cx'); 
+    var cy = gameBoard.selectAll('circle.player').attr('cy'); 
+    var xDiff = parseFloat(enemy.x) - parseFloat(cx);
+    var yDiff = parseFloat(enemy.y) - parseFloat(cy);
+    var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+
+    if (separation <= radiusSum) {
+      console.log('collided!');
+      onCollision();
+    }
+
+  });
+
+};
+
+var onCollision = function() {
+  gameStats.collisions++;
+  updateBestScore();
+  gameStats.score = 0;
+  updateScore();
+};
 
 
 /*------------------------------------------------------------------------------
@@ -212,19 +247,34 @@ var updateEnemies = function(enemies) {
     } else {
       e.y = nextY;
     }
-
-    // e.x = Math.max(0, Math.min(axes.x(100)-20, e.x + e.dx));
-    // e.y = Math.max(0, Math.min(axes.y(100)-20, e.y + e.dy));
   });
 };
 
+/*------------------------------------------------------------------------------
+                START GAME
+--------------------------------------------------------------------------------
+*/
+
+// Place enemies on board and start the enemies update loop
 render(enemies);
+playerOne.playerRender(gameBoard);
 setInterval(function() {
+  checkCollision();
   updateEnemies(enemies);
   render(enemies);
 }, 10);
 
+setInterval(function() {
+  gameStats.score++;
+  updateScore();
+}, 500);
 
+// One second after the enemies appear on screen,
+// place the player
+
+// setTimeout(function() {
+//   playerOne.playerRender(gameBoard);
+// }, 1000);
 
 
 
