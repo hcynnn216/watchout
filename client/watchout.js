@@ -9,13 +9,14 @@ var gameOptions = {
   width: 700,
   nEnemies: 30,
   padding: 20,
-  updateTime: 1000
+  updateTime: 500
 };
 
 // Establishes the initial values for the scoreboard
 var gameStats = {
   score: 0,
-  bestScore: 0
+  bestScore: 0,
+  collisions: 0
 };
 
 var axes = {
@@ -33,6 +34,8 @@ var gameBoard = d3.select('body').append('svg:svg')
 var updateScore = function() {
   d3.select('.current')
       .text('Current score: ' + gameStats.score.toString());
+  d3.select('.collisions')
+      .text('Collisions: ' + gameStats.collisions);
 };
 
 var updateBestScore = function() {
@@ -89,11 +92,6 @@ var playerOne = new Player();
 playersData.push(playerOne);
 playerOne.playerRender(gameBoard);
 
-
-
-
-
-
 /*------------------------------------------------------------------------------
                 Enemy 
 --------------------------------------------------------------------------------
@@ -112,6 +110,44 @@ var createEnemies = function() {
 };
 
 var enemyData = createEnemies();
+
+// Check for collisions with the player object
+// Simple collision function
+var checkCollision = function() {
+  var enemies = d3.selectAll('.enemy');
+  var player = d3.selectAll('.player');
+            
+  // enemies[0][0].x.animVal.value
+  // enemies[0][1].y.animVal.value
+  var enemiesArray = enemies[0].map(function(e) {
+    var enemyX = e.x.animVal.value;
+    var enemyY = e.y.animVal.value;
+    return { x: enemyX, y: enemyY };
+  });
+
+  _.each(enemiesArray, function(enemy) {
+    var radiusSum = 20; 
+    var cx = gameBoard.selectAll('circle.player').attr('cx'); 
+    var cy = gameBoard.selectAll('circle.player').attr('cy'); 
+    var xDiff = parseFloat(enemy.x) - parseFloat(cx);
+    var yDiff = parseFloat(enemy.y) - parseFloat(cy);
+    var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+
+    if (separation <= radiusSum) {
+      console.log('collided!');
+      onCollision();
+    }
+
+  });
+
+};
+
+var onCollision = function() {
+  gameStats.collisions++;
+  updateBestScore();
+  gameStats.score = 0;
+  updateScore();
+};
 
 
 /*------------------------------------------------------------------------------
@@ -147,47 +183,21 @@ var render = function(enemyData) {
     .remove();
 };
 
+// Start the game
 setInterval(function() {
   render(enemyData);
 }, gameOptions.updateTime);
 
-// var startGame = function() {
-//   var enemyData = createEnemies();
-//   render(enemyData);
-  
-//   setInterval(function() { 
-//     update(enemyData);
-//   }, 1000);
-// };
+// Check for collisions
+setInterval(function() {
+  checkCollision();
+}, 100);
 
-// startGame();
-
-// var startGame = function() {
-//   setInterval(function() {
-//     render();
-//     moveEnemies();
-//   }, 1000);
-// };
-
-// // Create and render enemies
-// 
-
-// var checkCollision = function(enemy, collidedCallback) {
-//   _.each()
-// };
-
-// var tweenWithCollisionDetection = function() {
-//   var enemy = d3.select(this);
-
-//   var startPos = {
-//     x: parseFloat
-//   }
-// }
-
-
-
-
-
+// Increment the score
+setInterval(function() {
+  gameStats.score++;
+  updateScore();
+}, 500);
 
 
 
