@@ -60,15 +60,13 @@ players.push(new Player());
 --------------------------------------------------------------------------------
 */
 
-var Enemy = function() {
-  id: null;
-  this.startingX = Math.random() * 100;
-  this.startingY = Math.random() * 100;
-};
-
 var createEnemies = function() {
   return _.range(0, gameOptions.nEnemies).map(function(i) {
-    return new Enemy();
+    return {
+      id: i, 
+      x: axes.x(Math.random() * 100),
+      y: axes.y(Math.random() * 100)
+    };
   });
 };
 
@@ -91,16 +89,23 @@ var render = function(enemies) {
   enemiesOnBoard.enter()
     .append('svg:image')
       .attr('class', 'enemy')
-      .attr('x', function(enemy) { return axes.x(enemy.startingX); })
-      .attr('y', function(enemy) { return axes.y(enemy.startingY); })
+      .attr('x', function(enemy) { return enemy.x; })
+      .attr('y', function(enemy) { return enemy.y; })
       .attr('height', '20px')
       .attr('width', '20px')
       .attr('xlink:href', 'asteroid.png');
 
   // UPDATE
-}
+  enemiesOnBoard
+    .attr('x', function(enemy) { return enemy.x; })
+    .attr('y', function(enemy) { return enemy.y; });
 
+  // EXIT
+  enemiesOnBoard.exit()
+    .remove();
+};
 
+render(enemies);
 
 
 
