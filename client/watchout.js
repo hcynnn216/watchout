@@ -3,7 +3,8 @@ var gameOptions = {
   height: 450,
   width: 700,
   nEnemies: 30,
-  padding: 20
+  padding: 20,
+  updateTime: 1000
 };
 
 // Establishes the initial values for the scoreboard
@@ -44,7 +45,7 @@ var updateBestScore = function() {
 // Create the enemies data array and set random locations 
 // information for each enemy
 var createEnemies = function() {
-  console.log("creating enemies");
+  console.log('creating enemies');
   return _.range(0, gameOptions.nEnemies).map(function(i) {
     return { 
       id: i,
@@ -60,7 +61,7 @@ var enemyData = createEnemies();
 var render = function(enemyData) {
   
   // DATA JOIN
-  var enemies = gameBoard.selectAll('circle.enemies')
+  var enemies = gameBoard.selectAll('circle.enemy')
                   .data(enemyData);
 
   // ENTER
@@ -71,13 +72,13 @@ var render = function(enemyData) {
       .attr('cy', function(enemy) { return axes.y(enemy.y); })
       .attr('r', 10)
       .attr('background-image', 'red');
- 
-  // // UPDATE
-  // enemies.transition()
-  //          .duration(500)
-  //          .attr('cx', function(enemy) { return axes.x(Math.min(100, Math.max(0, enemy.x + Math.random() * 20 - 10))); })
-  //          .attr('cy', function(enemy) { return axes.y(Math.min(100, Math.max(0, enemy.y + Math.random() * 20 - 10))); });
 
+  // UPDATE
+  enemies.transition()
+           .duration(500)
+           .attr('cx', function(enemy) { return axes.x(Math.min(100, Math.max(0, enemy.x + Math.random() * 20 - 10))); })
+           .attr('cy', function(enemy) { return axes.y(Math.min(100, Math.max(0, enemy.y + Math.random() * 20 - 10))); });
+ 
   // EXIT
   enemies.exit()
     .remove();
@@ -93,11 +94,9 @@ var update = function(enemyData) {
              .attr('cy', function(enemy) { return axes.y(Math.min(100, Math.max(0, enemy.y + Math.random() * 20 - 10))); });
 };
 
-render(enemyData);
-
 setInterval(function() {
-  update(enemyData);
-}, 500);
+  render(enemyData);
+}, gameOptions.updateTime);
 
 // var startGame = function() {
 //   var enemyData = createEnemies();
