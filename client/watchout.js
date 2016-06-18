@@ -56,12 +56,12 @@ class Player {
   playerRender(gameBoard) {
     console.log('rendering player...'); 
     var players = gameBoard.selectAll('circle.player').data(playersData);
+    var radius = 10;
     
     var dragmove = function(d) {
-      console.log('dragging');
       d3.select(this)
-          .attr('cx', d.x = d3.event.x)
-          .attr('cy', d.y = d3.event.y);
+          .attr('cx', d.x = Math.max(radius, Math.min(gameOptions.width - radius, d3.event.x)))
+          .attr('cy', d.y = Math.max(radius, Math.min(gameOptions.height - radius, d3.event.y)));
     };
 
     var drag = d3.behavior.drag()
