@@ -28,14 +28,14 @@ var gameBoard = d3.select('body').append('svg:svg')
                   .attr('height', gameOptions.height);
 
 // Draw a border around the gameBoard
-var gameBoardBorder = gameBoard.append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("height", gameOptions.height)
-            .attr("width", gameOptions.width)
-            .style("stroke", 'black')
-            .style("fill", "none")
-            .style("stroke-width", 10);
+var gameBoardBorder = gameBoard.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('height', gameOptions.height)
+            .attr('width', gameOptions.width)
+            .style('stroke', 'black')
+            .style('fill', 'none')
+            .style('stroke-width', 3);
 
 
 // Functions to set and update the scoreboards
@@ -167,8 +167,7 @@ var checkCollision = function() {
     var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
 
     if (separation <= radiusSum) {
-      console.log('collided!');
-      onCollision();
+      throttledOnCollision();
     }
 
   });
@@ -176,12 +175,14 @@ var checkCollision = function() {
 };
 
 var onCollision = function() {
+  console.log('collided!');
   gameStats.collisions++;
   updateBestScore();
   gameStats.score = 0;
   updateScore();
 };
 
+var throttledOnCollision = _.throttle(onCollision, 500);
 
 /*------------------------------------------------------------------------------
                 MAIN GAME 
@@ -268,13 +269,6 @@ setInterval(function() {
   gameStats.score++;
   updateScore();
 }, 500);
-
-// One second after the enemies appear on screen,
-// place the player
-
-// setTimeout(function() {
-//   playerOne.playerRender(gameBoard);
-// }, 1000);
 
 
 
