@@ -36,11 +36,32 @@ var updateBestScore = function() {
   d3.select('.highscore').text('High Score: ' + gameStats.bestScore.toString());  
 };
 
-// class Player {
-//   constructor() {
-//     this.path
-//   }
-// }
+class Player {
+  constructor() {
+    this.x = 50;
+    this.y = 50;
+  }
+
+  playerRender(gameBoard) {
+    console.log('rendering player...'); 
+    var players = gameBoard.selectAll('circle.player').data(playersData);
+
+    players.enter()
+      .append('svg:circle')
+        .attr('class', 'player')
+        .attr('cx', function(p) { return axes.x(p.x); })
+        .attr('cy', function(p) { return axes.y(p.y); })
+        .attr('r', 10)
+        .attr('fill', 'red');
+
+    players.exit()
+      .remove();
+  }
+}
+var playersData = [];
+var playerOne = new Player();
+playersData.push(playerOne);
+playerOne.playerRender(gameBoard);
 
 // Create the enemies data array and set random locations 
 // information for each enemy
@@ -61,37 +82,28 @@ var enemyData = createEnemies();
 var render = function(enemyData) {
   
   // DATA JOIN
-  var enemies = gameBoard.selectAll('circle.enemy')
+  var enemies = gameBoard.selectAll('image.enemy')
                   .data(enemyData);
 
   // ENTER
   enemies.enter()
-    .append('svg:circle')
+    .append('svg:image')
       .attr('class', 'enemy')
-      .attr('cx', function(enemy) { return axes.x(enemy.x); })
-      .attr('cy', function(enemy) { return axes.y(enemy.y); })
-      .attr('r', 10)
-      .attr('background-image', 'red');
+      .attr('x', function(enemy) { return axes.x(enemy.x); })
+      .attr('y', function(enemy) { return axes.y(enemy.y); })
+      .attr('height', '20px')
+      .attr('width', '20px')
+      .attr("xlink:href", "asteroid.png");
 
   // UPDATE
   enemies.transition()
            .duration(500)
-           .attr('cx', function(enemy) { return axes.x(Math.min(100, Math.max(0, enemy.x + Math.random() * 20 - 10))); })
-           .attr('cy', function(enemy) { return axes.y(Math.min(100, Math.max(0, enemy.y + Math.random() * 20 - 10))); });
+           .attr('x', function(enemy) { return axes.x(Math.min(100, Math.max(0, enemy.x + Math.random() * 20 - 10))); })
+           .attr('y', function(enemy) { return axes.y(Math.min(100, Math.max(0, enemy.y + Math.random() * 20 - 10))); });
  
   // EXIT
   enemies.exit()
     .remove();
-};
-
-var update = function(enemyData) {
-  console.log('updating...');
-  gameBoard.selectAll('.enemy')
-           .data(enemyData)
-           .transition()
-             .duration(500)
-             .attr('cx', function(enemy) { return axes.x(Math.min(100, Math.max(0, enemy.x + Math.random() * 20 - 10))); })
-             .attr('cy', function(enemy) { return axes.y(Math.min(100, Math.max(0, enemy.y + Math.random() * 20 - 10))); });
 };
 
 setInterval(function() {
