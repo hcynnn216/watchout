@@ -74,7 +74,6 @@ class Player {
   }
 
   playerRender(gameBoard) {
-    console.log('rendering player...'); 
     var players = gameBoard.selectAll('circle.player').data(playersData);
     var radius = 10;
     
@@ -176,7 +175,6 @@ var checkCollision = function() {
 };
 
 var onCollision = function() {
-  console.log('collided!');
   gameStats.collisions++;
   updateBestScore();
   gameStats.score = 0;
@@ -222,15 +220,16 @@ var reverseEnemyDirection = function(enemy) {
   enemy.dy = -enemy.dy;
 };
 
-
 var updateEnemies = function(enemies) {
-  console.log('updating...');
 
   var checkEnemiesCollision = function(e) {
+    var nextX = e.x + e.dx;
+    var nextY = e.y + e.dy;
+
     for (var i = 0; i < enemies.length; i++) {
       if (enemyCoords[e.id] !== enemyCoords[enemies[i].id]) {
-        var distX = enemyCoords[e.id].x - enemyCoords[enemies[i].id].x; 
-        var distY = enemyCoords[e.id].y - enemyCoords[enemies[i].id].y;
+        var distX = nextX - enemyCoords[enemies[i].id].x; 
+        var distY = nextY - enemyCoords[enemies[i].id].y;
         var dist = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
 
         if (dist < 20 && e.collision === false) {
@@ -258,6 +257,8 @@ var updateEnemies = function(enemies) {
     // in the opposite direction
     var nextX = e.x + e.dx;
     var nextY = e.y + e.dy;
+
+    e.collision = checkEnemiesCollision(e);
 
     if (nextX - 10 <= 0) {
       e.dx = -e.dx;
@@ -297,9 +298,7 @@ var updateEnemies = function(enemies) {
     //   }
     // });
 
-    if (checkEnemiesCollision(e) === false) {
-      e.collision = false;
-    }
+    
   });
 };
 
