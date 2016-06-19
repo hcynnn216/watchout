@@ -7,7 +7,7 @@ var gameOptions = {
   height: 450,
   width: 700,
   nEnemies: 30,
-  maxSpeed: 2,
+  maxSpeed: 1,
   minSpeed: 0
 };
 
@@ -135,10 +135,11 @@ var createEnemies = function() {
 
     return {
       id: i, 
-      x: axes.x(Math.random() * (60 - 40) + 40),
-      y: axes.y(Math.random() * (60 - 40) + 40),
+      x: axes.x(Math.random() * (90 - 10) + 10),
+      y: axes.y(Math.random() * (90 - 10) + 10),
       dx: newDX,
-      dy: newDY
+      dy: newDY,
+      collision: false
     };
   });
 };
@@ -216,8 +217,41 @@ var render = function(enemies) {
     .remove();
 };
 
+var reverseEnemyDirection = function(enemy) {
+  enemy.dx = -enemy.dx;
+  enemy.dy = -enemy.dy;
+};
+
+
 var updateEnemies = function(enemies) {
   console.log('updating...');
+
+  var checkEnemiesCollision = function(e) {
+    for (var i = 0; i < enemies.length; i++) {
+      if (enemyCoords[e.id] !== enemyCoords[enemies[i].id]) {
+        var distX = enemyCoords[e.id].x - enemyCoords[enemies[i].id].x; 
+        var distY = enemyCoords[e.id].y - enemyCoords[enemies[i].id].y;
+        var dist = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
+
+        if (dist < 20 && e.collision === false) {
+          // If there is a collision, reverse the direction of the ball
+          reverseEnemyDirection(e);
+          e.collision = true;
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Create an array of coordinates of all enemy objects
+  // Return [enemy x coordinate, enemy y coordinate, enemy id];
+  var enemyCoords = {};
+
+  _.each(enemies, function(e) {
+    enemyCoords[e.id] = {x: e.x, y: e.y };
+  });
+
   _.each(enemies, function(e) {
     // check if next x value would hit the boundaries of the board
     // if so, reverse the x value so that the ball will travel
@@ -228,11 +262,9 @@ var updateEnemies = function(enemies) {
     if (nextX - 10 <= 0) {
       e.dx = -e.dx;
       e.x = nextX;
-      //e.x = 10;
     } else if (nextX + 25 >= gameOptions.width) {
       e.dx = -e.dx;
       e.x = nextX;
-      //e.x = gameOptions.width - 10;
     } else {
       e.x = nextX;
     }
@@ -240,13 +272,33 @@ var updateEnemies = function(enemies) {
     if (nextY - 10 <= 0) { 
       e.dy = -e.dy;
       e.y = nextY;
-      //e.y = 10;
     } else if (nextY + 25 >= gameOptions.height) {
       e.dy = -e.dy;
       e.y = nextY;
-      //e.y = gameOptions.height;
     } else {
       e.y = nextY;
+    }
+
+    // check for collision with other enemy objects
+    // if so, reverse directions
+    // _.each(enemies, function(otherEnemy) {
+    //   // For all enemy objects other than itself
+    //   if (enemyCoords[e.id] !== enemyCoords[otherEnemy.id]) {
+    //     // Check if there is a collision
+    //     var distX = enemyCoords[e.id].x - enemyCoords[otherEnemy.id].x; 
+    //     var distY = enemyCoords[e.id].y - enemyCoords[otherEnemy.id].y;
+    //     var dist = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
+
+    //     if (dist < 20 && !e.collision) {
+    //       // If there is a collision, reverse the direction of the ball
+    //       reverseEnemyDirection(e);
+    //       e.collision = true;
+    //     }
+    //   }
+    // });
+
+    if (checkEnemiesCollision(e) === false) {
+      e.collision = false;
     }
   });
 };
@@ -263,7 +315,7 @@ setInterval(function() {
   checkCollision();
   updateEnemies(enemies);
   render(enemies);
-}, 10);
+}, 1);
 
 setInterval(function() {
   gameStats.score++;
