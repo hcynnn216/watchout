@@ -6,7 +6,7 @@
 var gameOptions = {
   height: 450,
   width: 700,
-  nEnemies: 30,
+  nEnemies: 20,
   maxSpeed: 1,
   minSpeed: 0
 };
@@ -215,9 +215,16 @@ var render = function(enemies) {
     .remove();
 };
 
-var reverseEnemyDirection = function(enemy) {
-  enemy.dx = -enemy.dx;
-  enemy.dy = -enemy.dy;
+var reverseEnemyDirection = function(enemy1, enemy2) {
+  var v1 = Math.sqrt(Math.pow(enemy1.dx, 2) + Math.pow(enemy1.dy, 2));
+  var v2 = Math.sqrt(Math.pow(enemy2.dx, 2) + Math.pow(enemy2.dy, 2));
+  var theta1 = Math.atan(enemy1.dy / enemy1.dx);
+  var theta2 = Math.atan(enemy2.dy / enemy2.dx);
+  var phi = Math.atan((enemy1.y - enemy2.y) / (enemy1.x - enemy2.x));
+  enemy1.dx = - v2 * Math.cos(theta2 - phi) * Math.cos(phi) + v1 * Math.sin(theta1 - phi) * Math.cos(phi + 1.57);
+  enemy1.dy = - v2 * Math.cos(theta2 - phi) * Math.sin(phi) + v1 * Math.sin(theta1 - phi) * Math.sin(phi + 1.57);
+  enemy2.dx = v1 * Math.cos(theta1 - phi) * Math.cos(phi) - v2 * Math.sin(theta2 - phi) * Math.cos(phi + 1.57);
+  enemy2.dy = v1 * Math.cos(theta1 - phi) * Math.sin(phi) - v2 * Math.sin(theta2 - phi) * Math.sin(phi + 1.57);
 };
 
 var updateEnemies = function(enemies) {
@@ -232,9 +239,9 @@ var updateEnemies = function(enemies) {
         var distY = nextY - enemyCoords[enemies[i].id].y;
         var dist = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
 
-        if (dist < 20 && e.collision === false) {
+        if (dist < 21 && e.collision === false) {
           // If there is a collision, reverse the direction of the ball
-          reverseEnemyDirection(e);
+          reverseEnemyDirection(e, enemies[i]);
           e.collision = true;
           return true;
         }
@@ -260,20 +267,20 @@ var updateEnemies = function(enemies) {
 
     e.collision = checkEnemiesCollision(e);
 
-    if (nextX - 10 <= 0) {
+    if (nextX <= 0) {
       e.dx = -e.dx;
       e.x = nextX;
-    } else if (nextX + 25 >= gameOptions.width) {
+    } else if (nextX + 20 >= gameOptions.width) {
       e.dx = -e.dx;
       e.x = nextX;
     } else {
       e.x = nextX;
     }
 
-    if (nextY - 10 <= 0) { 
+    if (nextY <= 0) { 
       e.dy = -e.dy;
       e.y = nextY;
-    } else if (nextY + 25 >= gameOptions.height) {
+    } else if (nextY + 20 >= gameOptions.height) {
       e.dy = -e.dy;
       e.y = nextY;
     } else {
